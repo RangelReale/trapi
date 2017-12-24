@@ -24,30 +24,52 @@ func NewParser(gcp *gocompar.Parser) *Parser {
 			"String": &ApiDataType{
 				Name:     "String",
 				DataType: DATATYPE_STRING,
+				BuiltIn:  true,
 			},
 			"Number": &ApiDataType{
 				Name:     "Number",
 				DataType: DATATYPE_NUMBER,
+				BuiltIn:  true,
 			},
 			"Integer": &ApiDataType{
 				Name:     "Integer",
 				DataType: DATATYPE_INTEGER,
+				BuiltIn:  true,
 			},
 			"Boolean": &ApiDataType{
 				Name:     "Boolean",
 				DataType: DATATYPE_BOOLEAN,
+				BuiltIn:  true,
+			},
+			"Date": &ApiDataType{
+				Name:     "Date",
+				DataType: DATATYPE_DATE,
+				BuiltIn:  true,
+			},
+			"Time": &ApiDataType{
+				Name:     "Time",
+				DataType: DATATYPE_TIME,
+				BuiltIn:  true,
+			},
+			"DateTime": &ApiDataType{
+				Name:     "DateTime",
+				DataType: DATATYPE_DATETIME,
+				BuiltIn:  true,
 			},
 			"Object": &ApiDataType{
 				Name:     "Object",
 				DataType: DATATYPE_OBJECT,
+				BuiltIn:  true,
 			},
 			"Array": &ApiDataType{
 				Name:     "Array",
 				DataType: DATATYPE_ARRAY,
+				BuiltIn:  true,
 			},
 			"Binary": &ApiDataType{
 				Name:     "Binary",
 				DataType: DATATYPE_BINARY,
+				BuiltIn:  true,
 			},
 		},
 	}

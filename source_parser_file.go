@@ -121,11 +121,7 @@ func (p *sourceParserFile) parseComment(comment *gocompar.Comment) error {
 		s := reAPI.FindStringSubmatch(scan.Text())
 
 		if p.stack.Len() > 0 && p.stack.Top().StackItemType == SITEM_TEXT {
-			fv := strings.TrimSpace(scan.Text())
-			// if was multi-line, remove leading '*' if exists
-			if comment.Flags&gocompar.MULTI_LINE == gocompar.MULTI_LINE {
-				fv = strings.TrimLeft(fv, "*")
-			}
+			fv := scan.Text()
 
 			if s != nil && len(s) > 1 {
 				// api tag found, end example

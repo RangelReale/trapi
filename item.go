@@ -11,6 +11,9 @@ const (
 	DATATYPE_OBJECT
 	DATATYPE_ARRAY
 	DATATYPE_BINARY
+	DATATYPE_DATE
+	DATATYPE_TIME
+	DATATYPE_DATETIME
 	DATATYPE_CUSTOM = 1000
 )
 
@@ -65,6 +68,7 @@ type ApiDataType struct {
 	Items        map[string]*ApiDataType
 	ItemsOrder   []string
 	Examples     []*ApiExample
+	BuiltIn      bool
 }
 
 func (a *ApiDataType) Clone() *ApiDataType {
@@ -76,6 +80,7 @@ func (a *ApiDataType) Clone() *ApiDataType {
 		Description:  a.Description,
 		Required:     a.Required,
 		Examples:     a.Examples,
+		BuiltIn:      false,
 	}
 	if a.Items != nil {
 		ret.Items = make(map[string]*ApiDataType)
