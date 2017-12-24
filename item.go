@@ -63,7 +63,7 @@ func ParseResponseType(response_type string) ResponseType {
 }
 
 type ApiDataType struct {
-	Name         string
+	//Name         string
 	DataType     DataType
 	ItemType     *ApiDataType
 	OriginalType string
@@ -77,7 +77,7 @@ type ApiDataType struct {
 
 func (a *ApiDataType) Clone() *ApiDataType {
 	ret := &ApiDataType{
-		Name:         a.Name,
+		//Name:         a.Name,
 		DataType:     a.DataType,
 		ItemType:     a.ItemType,
 		OriginalType: a.OriginalType,

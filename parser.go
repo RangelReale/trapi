@@ -22,52 +22,52 @@ func NewParser(gcp *gocompar.Parser) *Parser {
 		gcp: gcp,
 		DataTypes: map[string]*ApiDataType{
 			"String": &ApiDataType{
-				Name:     "String",
+				//Name:     "String",
 				DataType: DATATYPE_STRING,
 				BuiltIn:  true,
 			},
 			"Number": &ApiDataType{
-				Name:     "Number",
+				//Name:     "Number",
 				DataType: DATATYPE_NUMBER,
 				BuiltIn:  true,
 			},
 			"Integer": &ApiDataType{
-				Name:     "Integer",
+				//Name:     "Integer",
 				DataType: DATATYPE_INTEGER,
 				BuiltIn:  true,
 			},
 			"Boolean": &ApiDataType{
-				Name:     "Boolean",
+				//Name:     "Boolean",
 				DataType: DATATYPE_BOOLEAN,
 				BuiltIn:  true,
 			},
 			"Date": &ApiDataType{
-				Name:     "Date",
+				//Name:     "Date",
 				DataType: DATATYPE_DATE,
 				BuiltIn:  true,
 			},
 			"Time": &ApiDataType{
-				Name:     "Time",
+				//Name:     "Time",
 				DataType: DATATYPE_TIME,
 				BuiltIn:  true,
 			},
 			"DateTime": &ApiDataType{
-				Name:     "DateTime",
+				//Name:     "DateTime",
 				DataType: DATATYPE_DATETIME,
 				BuiltIn:  true,
 			},
 			"Object": &ApiDataType{
-				Name:     "Object",
+				//Name:     "Object",
 				DataType: DATATYPE_OBJECT,
 				BuiltIn:  true,
 			},
 			"Array": &ApiDataType{
-				Name:     "Array",
+				//Name:     "Array",
 				DataType: DATATYPE_ARRAY,
 				BuiltIn:  true,
 			},
 			"Binary": &ApiDataType{
-				Name:     "Binary",
+				//Name:     "Binary",
 				DataType: DATATYPE_BINARY,
 				BuiltIn:  true,
 			},
@@ -171,7 +171,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 						return NewParserError(fmt.Sprintf("Only one level of indirection is supported in query param %s", srcapiparam.Name), srcapiparam.Filename, srcapiparam.Line)
 					}
 
-					dtlist = append(dtlist, &_dtitem{dt.Items[ppi].Name, dt.Items[ppi]})
+					dtlist = append(dtlist, &_dtitem{ppi, dt.Items[ppi]})
 				}
 			} else {
 				dtlist = append(dtlist, &_dtitem{srcapiparam.Name, dt})
@@ -342,7 +342,7 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 	dt, ok := p.DataTypes[sdt]
 	if ok && is_array {
 		return &ApiDataType{
-			Name:         b.Name,
+			//Name:         b.Name,
 			DataType:     DATATYPE_ARRAY,
 			ItemType:     dt,
 			OriginalType: b.DataType,
@@ -354,8 +354,8 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 	if ok && dt.DataType != DATATYPE_OBJECT {
 		ret := dt.Clone()
 		if is_override {
-			ret.OriginalType = ret.Name
-			ret.Name = b.Name
+			//ret.OriginalType = ret.Name
+			//ret.Name = b.Name
 			ret.BuiltIn = false
 		}
 		ret.Description = b.Description
@@ -367,8 +367,8 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 
 		ret := dt.Clone()
 		if is_override {
-			ret.OriginalType = ret.Name
-			ret.Name = b.Name
+			//ret.OriginalType = ret.Name
+			//ret.Name = b.Name
 			ret.BuiltIn = false
 		}
 		ret.Description = b.Description
