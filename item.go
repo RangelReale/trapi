@@ -63,28 +63,30 @@ func ParseResponseType(response_type string) ResponseType {
 }
 
 type ApiDataType struct {
-	//Name         string
+	DataTypeName string
 	DataType     DataType
-	ItemType     *ApiDataType
-	OriginalType string
+	ItemType     *string
+	ParentType   *string
 	Description  string
 	Required     bool
 	Items        map[string]*ApiDataType
 	ItemsOrder   []string
 	Examples     []*ApiExample
 	BuiltIn      bool
+	Override     bool
 }
 
 func (a *ApiDataType) Clone() *ApiDataType {
 	ret := &ApiDataType{
-		//Name:         a.Name,
+		DataTypeName: a.DataTypeName,
 		DataType:     a.DataType,
 		ItemType:     a.ItemType,
-		OriginalType: a.OriginalType,
+		ParentType:   a.ParentType,
 		Description:  a.Description,
 		Required:     a.Required,
 		Examples:     a.Examples,
 		BuiltIn:      a.BuiltIn,
+		Override:     a.Override,
 	}
 	if a.Items != nil {
 		ret.Items = make(map[string]*ApiDataType)

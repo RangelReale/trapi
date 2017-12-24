@@ -140,7 +140,7 @@ func (p *sourceParserFile) parseParam(line int, comment *gocompar.Comment, text 
 
 	item_param := &SourceParseItemParam{
 		ParamType:     strings.TrimSpace(s[1]),
-		Name:          strings.TrimSpace(s[3]),
+		Name:          strings.TrimSuffix(strings.TrimSpace(s[3]), "?"),
 		SPIB_DataType: NewSPIB_DataType("param", strings.TrimSpace(s[2]), strings.TrimSpace(s[4])),
 		SPIB_Filename: SPIB_Filename{
 			Filename: p.filename,
