@@ -76,6 +76,7 @@ type SourceParseItemParam struct {
 	SPIB_DataType
 
 	ParamType string
+	Name      string
 }
 
 //

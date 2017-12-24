@@ -91,7 +91,8 @@ func (p *sourceParserFile) parseApi(line int, comment *gocompar.Comment, text st
 	for _, pi := range params {
 		newi.Params = append(newi.Params, &SourceParseItemParam{
 			ParamType:     "uri",
-			SPIB_DataType: NewSPIB_DataType(pi[1], "String", ""),
+			Name:          pi[1],
+			SPIB_DataType: NewSPIB_DataType("param", "String", ""),
 			SPIB_Filename: SPIB_Filename{
 				Filename: p.filename,
 				Line:     comment.Line + line,
@@ -139,7 +140,8 @@ func (p *sourceParserFile) parseParam(line int, comment *gocompar.Comment, text 
 
 	item_param := &SourceParseItemParam{
 		ParamType:     strings.TrimSpace(s[1]),
-		SPIB_DataType: NewSPIB_DataType(strings.TrimSpace(s[3]), strings.TrimSpace(s[2]), strings.TrimSpace(s[4])),
+		Name:          strings.TrimSpace(s[3]),
+		SPIB_DataType: NewSPIB_DataType("param", strings.TrimSpace(s[2]), strings.TrimSpace(s[4])),
 		SPIB_Filename: SPIB_Filename{
 			Filename: p.filename,
 			Line:     comment.Line + line,

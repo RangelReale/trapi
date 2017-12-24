@@ -151,7 +151,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 			}
 
 			// parse data type
-			dt, ctmiss, err := p.parseSourceDataType(&srcapiparam.SPIB_DataType, nil, false)
+			dt, ctmiss, err := p.parseSourceDataType(&srcapiparam.SPIB_DataType, nil, false, false)
 			if err != nil {
 				return err
 			}
@@ -159,7 +159,11 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 				return NewParserError(fmt.Sprintf("Unknown param datatype %s", srcapiparam.DataType), srcapiparam.Filename, srcapiparam.Line)
 			}
 
-			dtlist := make([]*ApiDataType, 0)
+			type _dtitem struct {
+				Name     string
+				DataType *ApiDataType
+			}
+			dtlist := make([]*_dtitem, 0)
 			if pt == PARAMTYPE_QUERY && dt.DataType == DATATYPE_OBJECT {
 				// expand keys into parameters
 				for _, ppi := range dt.ItemsOrder {
@@ -167,17 +171,17 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 						return NewParserError(fmt.Sprintf("Only one level of indirection is supported in query param %s", srcapiparam.Name), srcapiparam.Filename, srcapiparam.Line)
 					}
 
-					dtlist = append(dtlist, dt.Items[ppi])
+					dtlist = append(dtlist, &_dtitem{dt.Items[ppi].Name, dt.Items[ppi]})
 				}
 			} else {
-				dtlist = append(dtlist, dt)
+				dtlist = append(dtlist, &_dtitem{srcapiparam.Name, dt})
 			}
 
 			for _, procdt := range dtlist {
 
 				newip := &ApiParam{
 					Name:          procdt.Name,
-					DataType:      procdt,
+					DataType:      procdt.DataType,
 					SPIB_Filename: srcapiparam.SPIB_Filename,
 				}
 
@@ -213,37 +217,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 			if err != nil {
 				return err
 			}
-
 		}
-
-		/*
-			for _, srcapiheader := range srcapi.Headers {
-
-				// get data type
-				dt, err := p.getDataType(srcapiheader.DataType)
-				if err != nil {
-					return err
-				}
-
-				newih := &ApiHeader{
-					Name:          srcapiheader.Name,
-					DataType:      dt,
-					Description:   srcapiheader.Description,
-					SPIB_Filename: srcapiheader.SPIB_Filename,
-				}
-
-				if newi.Headers == nil {
-					newi.Headers = &ApiHeaderList{
-						List: make(map[string][]*ApiHeader),
-					}
-				}
-				if _, nifound := newi.Headers.List[newih.Name]; !nifound {
-					newi.Headers.List[newih.Name] = make([]*ApiHeader, 0)
-					newi.Headers.Order = append(newi.Headers.Order, newih.Name)
-				}
-				newi.Headers.List[newih.Name] = append(newi.Headers.List[newih.Name], newih)
-			}
-		*/
 
 		//
 		// Responses
@@ -254,7 +228,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 			rt := ParseResponseType(srcapiresp.ResponseType)
 
 			// parse data type
-			dt, ctmiss, err := p.parseSourceDataType(&srcapiresp.SPIB_DataType, nil, false)
+			dt, ctmiss, err := p.parseSourceDataType(&srcapiresp.SPIB_DataType, nil, false, true)
 			if err != nil {
 				return NewParserError(fmt.Sprintf("Error parsing response datatype %s [%s]", srcapiresp.DataType, err.Error()), srcapiresp.Filename, srcapiresp.Line)
 			}
@@ -296,6 +270,16 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 	return nil
 }
 
+func (p *Parser) BuildApiList() *ApiList {
+	ret := &ApiList{
+		Path: "/",
+	}
+	for _, al := range p.Apis {
+		ret.Add(al)
+	}
+	return ret
+}
+
 func (p *Parser) parseSourceDefinesPass(sp *SourceParser) (ctconv int, ctmiss int, err error) {
 
 	ctconv = 0
@@ -313,7 +297,7 @@ func (p *Parser) parseSourceDefinesPass(sp *SourceParser) (ctconv int, ctmiss in
 			continue
 		}
 
-		dt, pctmiss, err := p.parseSourceDataType(&d.SPIB_DataType, nil, true)
+		dt, pctmiss, err := p.parseSourceDataType(&d.SPIB_DataType, nil, true, true)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -343,7 +327,7 @@ func (p *Parser) getDataType(datatype string) (*ApiDataType, error) {
 	return nil, fmt.Errorf("Unknown datatype '%s'", datatype)
 }
 
-func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_define bool) (adt *ApiDataType, ctmiss int, err error) {
+func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_define bool, is_override bool) (adt *ApiDataType, ctmiss int, err error) {
 	if rootb == nil {
 		rootb = b
 	}
@@ -369,8 +353,11 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 
 	if ok && dt.DataType != DATATYPE_OBJECT {
 		ret := dt.Clone()
-		ret.OriginalType = ret.Name
-		ret.Name = b.Name
+		if is_override {
+			ret.OriginalType = ret.Name
+			ret.Name = b.Name
+			ret.BuiltIn = false
+		}
 		ret.Description = b.Description
 		ret.Required = b.Required
 		return ret, 0, nil
@@ -379,8 +366,11 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 	if ok && dt.DataType == DATATYPE_OBJECT {
 
 		ret := dt.Clone()
-		ret.OriginalType = ret.Name
-		ret.Name = b.Name
+		if is_override {
+			ret.OriginalType = ret.Name
+			ret.Name = b.Name
+			ret.BuiltIn = false
+		}
 		ret.Description = b.Description
 		ret.Required = b.Required
 		if b.Items != nil {
@@ -391,13 +381,7 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 
 				_, foundi := ret.Items[it.Name]
 
-				/*
-					if _, foundi := ret.Items[it.Name]; foundi {
-						return nil, 0, 0, fmt.Errorf("Duplicated item %s into %s data type", it.Name, rootb.Name)
-					}
-				*/
-
-				newit, newctmiss, err := p.parseSourceDataType(it, rootb, is_define)
+				newit, newctmiss, err := p.parseSourceDataType(it, rootb, is_define, true)
 				if err != nil {
 					return nil, newctmiss, err
 				}

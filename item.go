@@ -1,5 +1,9 @@
 package trapi
 
+import (
+	"strings"
+)
+
 type DataType int
 
 const (
@@ -80,7 +84,7 @@ func (a *ApiDataType) Clone() *ApiDataType {
 		Description:  a.Description,
 		Required:     a.Required,
 		Examples:     a.Examples,
-		BuiltIn:      false,
+		BuiltIn:      a.BuiltIn,
 	}
 	if a.Items != nil {
 		ret.Items = make(map[string]*ApiDataType)
@@ -105,6 +109,41 @@ type Api struct {
 	Headers     *ApiHeaderList
 
 	SPIB_Filename
+}
+
+type ApiList struct {
+	Path     string
+	SubItems []*ApiList
+	Apis     []*Api
+}
+
+func (a *ApiList) Find(path string) *ApiList {
+	for _, ap := range a.SubItems {
+		if ap.Path == path {
+			return ap
+		}
+	}
+	return nil
+}
+
+func (a *ApiList) Add(api *Api) {
+
+	paths := strings.Split(api.Path, "/")
+	cura := a
+	for _, p := range paths {
+		if p != "" {
+			fal := cura.Find(p)
+			if fal == nil {
+				fal = &ApiList{
+					Path: p,
+				}
+				cura.SubItems = append(cura.SubItems, fal)
+			}
+			cura = fal
+		}
+	}
+
+	cura.Apis = append(cura.Apis, api)
 }
 
 type ApiDefine struct {
