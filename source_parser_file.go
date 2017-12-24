@@ -163,7 +163,7 @@ func (p *sourceParserFile) parseComment(comment *gocompar.Comment) error {
 				err = p.parseParam(line, comment, scan.Text())
 			case "Success", "Error", "Response":
 				err = p.parseResponse(line, comment, scan.Text())
-			case "Data":
+			case "Field":
 				err = p.parseData(line, comment, scan.Text())
 			case "Example":
 				err = p.parseExample(line, comment, scan.Text())

@@ -210,23 +210,23 @@ func (p *sourceParserFile) parseResponse(line int, comment *gocompar.Comment, te
 //
 
 var (
-	// @apiData {data_type} Name Description
-	reAPIData = regexp.MustCompile(`@apiData \{([^}]+)\} (\S+)(.*)$`)
+	// @apiField {data_type} Name Description
+	reAPIField = regexp.MustCompile(`@apiField \{([^}]+)\} (\S+)(.*)$`)
 )
 
 func (p *sourceParserFile) parseData(line int, comment *gocompar.Comment, text string) error {
 
 	// must have an "DataType" item at top
 	if p.stack.Top() == nil || p.stack.Top().StackItemType != SITEM_DATATYPE {
-		return fmt.Errorf("@apiData must come after an datatype definition: %s", text)
+		return fmt.Errorf("@apiField must come after an datatype definition: %s", text)
 	}
 
-	s := reAPIData.FindStringSubmatch(text)
+	s := reAPIField.FindStringSubmatch(text)
 	if s == nil || len(s) < 2 {
-		return fmt.Errorf("Could not parse @apiData line: %s", text)
+		return fmt.Errorf("Could not parse @apiField line: %s", text)
 	}
 
-	//fmt.Printf("@apiData: {%+v} [[[%s]]]\n", strings.Join(s[1:], ", "), text)
+	//fmt.Printf("@apiField: {%+v} [[[%s]]]\n", strings.Join(s[1:], ", "), text)
 
 	datatype := p.stack.Top().StackItem.(*SPIB_DataType)
 
