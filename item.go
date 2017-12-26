@@ -177,7 +177,7 @@ type Api struct {
 	Path        string
 	Description string
 	Params      ApiParamTypeList
-	Responses   []*ApiResponse
+	Responses   *ApiResponseList
 	Headers     *ApiHeaderList
 
 	SPIB_Filename
@@ -264,10 +264,17 @@ type ApiExample struct {
 
 type ApiResponse struct {
 	ResponseType ResponseType
-	Codes        string
-	ContentTypes string
 	DataType     *ApiDataType
 
 	Examples []*ApiExample
 	Headers  *ApiHeaderList
+}
+
+type ApiResponseList struct {
+	List map[string][]*ApiResponseBody
+}
+
+type ApiResponseBody struct {
+	ContentType string
+	ApiResponse *ApiResponse
 }

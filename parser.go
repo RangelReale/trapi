@@ -261,31 +261,53 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 				return NewParserError(fmt.Sprintf("Unknown response datatype %s", srcapiresp.DataType), srcapiresp.Filename, srcapiresp.Line)
 			}
 
-			newir := &ApiResponse{
-				ResponseType: rt,
-				Codes:        srcapiresp.Codes,
-				ContentTypes: srcapiresp.ContentTypes,
-				DataType:     dt,
+			codes := strings.Split(srcapiresp.Codes, ",")
+			contenttypes := strings.Split(srcapiresp.ContentTypes, ",")
+			if len(contenttypes) == 0 {
+				contenttypes = append(contenttypes, "-")
 			}
 
-			// response headers
-			if len(srcapiresp.Headers) > 0 {
-				newir.Headers = &ApiHeaderList{
-					List: make(map[string][]*ApiHeader),
+			for _, c_code := range codes {
+				for _, c_contenttype := range contenttypes {
+
+					newir := &ApiResponse{
+						ResponseType: rt,
+						DataType:     dt,
+					}
+
+					// response headers
+					if len(srcapiresp.Headers) > 0 {
+						newir.Headers = &ApiHeaderList{
+							List: make(map[string][]*ApiHeader),
+						}
+
+						err := p.parseApiHeaderList(srcapiresp.Headers, newir.Headers)
+						if err != nil {
+							return err
+						}
+					}
+
+					// response examples
+					if len(srcapiresp.Examples) > 0 {
+						p.parseApiExampleList(srcapiresp.Examples, &newir.Examples)
+					}
+
+					if newi.Responses == nil {
+						newi.Responses = &ApiResponseList{
+							List: make(map[string][]*ApiResponseBody),
+						}
+					}
+					if _, fnd := newi.Responses.List[c_code]; !fnd {
+						newi.Responses.List[c_code] = make([]*ApiResponseBody, 0)
+					}
+
+					newi.Responses.List[c_code] = append(newi.Responses.List[c_code], &ApiResponseBody{
+						ContentType: c_contenttype,
+						ApiResponse: newir,
+					})
 				}
-
-				err := p.parseApiHeaderList(srcapiresp.Headers, newir.Headers)
-				if err != nil {
-					return err
-				}
 			}
 
-			// response examples
-			if len(srcapiresp.Examples) > 0 {
-				p.parseApiExampleList(srcapiresp.Examples, &newir.Examples)
-			}
-
-			newi.Responses = append(newi.Responses, newir)
 		}
 
 		p.Apis = append(p.Apis, newi)
