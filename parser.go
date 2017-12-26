@@ -393,10 +393,14 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 	dt, ok := p.DataTypes[sdt]
 	if ok && is_array {
 		array_parenttype := "Array"
+		a_itemtype := &sdt
+		if dt.DataType == DATATYPE_OBJECT && dt.BuiltIn {
+			a_itemtype = nil
+		}
 		return &ApiDataType{
 			//Name:         b.Name,
 			DataType:    DATATYPE_ARRAY,
-			ItemType:    &sdt,
+			ItemType:    a_itemtype,
 			ParentType:  &array_parenttype,
 			Description: b.Description,
 			Override:    true,
