@@ -119,16 +119,17 @@ func ParseResponseType(response_type string) ResponseType {
 }
 
 type ApiDataType struct {
-	DataTypeName string
-	DataType     DataType
-	ItemType     *string
-	ParentType   *string
-	Description  string
-	Items        map[string]*ApiDataTypeField
-	ItemsOrder   []string
-	Examples     []*ApiExample
-	BuiltIn      bool
-	Override     bool
+	DataTypeName  string
+	DataType      DataType
+	ItemType      *string
+	ParentType    *string
+	Description   string
+	Items         map[string]*ApiDataTypeField
+	ItemsOrder    []string
+	OverrideItems []string
+	Examples      []*ApiExample
+	BuiltIn       bool
+	Override      bool
 }
 
 func (a *ApiDataType) Clone() *ApiDataType {
@@ -155,6 +156,11 @@ func (a *ApiDataType) Clone() *ApiDataType {
 	if a.ItemsOrder != nil {
 		for _, ao := range a.ItemsOrder {
 			ret.ItemsOrder = append(ret.ItemsOrder, ao)
+		}
+	}
+	if a.OverrideItems != nil {
+		for _, ao := range a.OverrideItems {
+			ret.OverrideItems = append(ret.OverrideItems, ao)
 		}
 	}
 	return ret

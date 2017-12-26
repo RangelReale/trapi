@@ -403,8 +403,9 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 		}
 		ret.ParentType = &sdt
 		ret.Override = true
+		ret.OverrideItems = nil
 
-		if b.Items != nil {
+		if b.Items != nil && len(b.Items) > 0 {
 			if ret.Items == nil {
 				ret.Items = make(map[string]*ApiDataTypeField)
 			}
@@ -418,15 +419,16 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 				}
 				ctmiss += newctmiss
 				if newctmiss == 0 {
-					//ret.Items[it.Name] = newit.Clone()
-					ret.Items[it.Name] = &ApiDataTypeField{
+					newifield := &ApiDataTypeField{
 						FieldName:   it.Name,
 						Required:    it.Required,
 						ApiDataType: newit,
 					}
+					ret.Items[it.Name] = newifield
 					if !foundi {
 						ret.ItemsOrder = append(ret.ItemsOrder, it.Name)
 					}
+					ret.OverrideItems = append(ret.OverrideItems, it.Name)
 				}
 			}
 		}
