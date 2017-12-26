@@ -73,7 +73,21 @@ func (p *sourceParserFile) stackCloseUntil(itemtype SourceStackItemType) error {
 	}
 
 	return nil
+}
 
+func (p *sourceParserFile) stackCloseUntilWithExample() error {
+
+	for p.stack.Len() > 0 {
+		if _, ok := p.stack.Top().Item.(ISPIB_WithExamples); ok {
+			return nil
+		}
+		err := p.stackCloseLast()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (p *sourceParserFile) stackCloseLast() error {

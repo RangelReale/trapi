@@ -11,6 +11,24 @@ const (
 	SPARSE_ITEM_HEADER
 )
 
+func (sp SourceParseItemType) String() string {
+	switch sp {
+	case SPARSE_ITEM_DEFINE:
+		return "SPARSE_ITEM_DEFINE"
+	case SPARSE_ITEM_API:
+		return "SPARSE_ITEM_API"
+	case SPARSE_ITEM_PARAM:
+		return "SPARSE_ITEM_PARAM"
+	case SPARSE_ITEM_RESPONSE:
+		return "SPARSE_ITEM_RESPONSE"
+	case SPARSE_ITEM_EXAMPLE:
+		return "SPARSE_ITEM_EXAMPLE"
+	case SPARSE_ITEM_HEADER:
+		return "SPARSE_ITEM_HEADER"
+	}
+	return "SPARSE_ITEM_UNKNOWN"
+}
+
 //
 // Source Parse Item: API
 //
@@ -77,6 +95,12 @@ type SourceParseItemParam struct {
 
 	ParamType string
 	Name      string
+
+	Examples []*SourceParseItemExample
+}
+
+func (pr *SourceParseItemParam) AppendExample(example *SourceParseItemExample) {
+	pr.Examples = append(pr.Examples, example)
 }
 
 //

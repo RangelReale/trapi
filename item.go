@@ -230,6 +230,7 @@ type ApiDefine struct {
 type ApiParam struct {
 	Name     string
 	DataType *ApiDataType
+	Examples []*ApiExample
 
 	SPIB_Filename
 }

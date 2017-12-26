@@ -268,12 +268,11 @@ var (
 
 func (p *sourceParserFile) parseExample(line int, comment *gocompar.Comment, text string) error {
 
-	/*
-		// must have an "Response" item at top
-		if p.stack.Top() == nil || p.stack.Top().Item != ITEM_RESPONSE {
-			return fmt.Errorf("@apiExample must come after an @apiSuccess/@apiError: %s", text)
-		}
-	*/
+	// must have an "ISPIB_WithExamples" item at top
+	err := p.stackCloseUntilWithExample()
+	if err != nil {
+		return err
+	}
 
 	s := reAPIExample.FindStringSubmatch(text)
 	if s == nil || len(s) < 2 {

@@ -9,6 +9,20 @@ const (
 	SITEM_TEXT
 )
 
+func (s SourceStackItemType) String() string {
+	switch s {
+	case SITEM_NONE:
+		return "SITEM_NONE"
+	case SITEM_DATATYPE:
+		return "SITEM_DATATYPE"
+	case SITEM_API:
+		return "SITEM_API"
+	case SITEM_TEXT:
+		return "SITEM_TEXT"
+	}
+	return "SITEM_UNKNOWN"
+}
+
 type SourceStackData struct {
 	ItemType      SourceParseItemType
 	StackItemType SourceStackItemType

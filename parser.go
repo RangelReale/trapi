@@ -188,6 +188,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 			type _dtitem struct {
 				Name     string
 				DataType *ApiDataType
+				Examples []*ApiExample
 			}
 			dtlist := make([]*_dtitem, 0)
 			if pt == PARAMTYPE_QUERY && dt.DataType == DATATYPE_OBJECT {
@@ -197,10 +198,18 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 						return NewParserError(fmt.Sprintf("Only one level of indirection is supported in query param %s", srcapiparam.Name), srcapiparam.Filename, srcapiparam.Line)
 					}
 
-					dtlist = append(dtlist, &_dtitem{dt.Items[ppi].FieldName, dt.Items[ppi].ApiDataType})
+					dtlist = append(dtlist, &_dtitem{dt.Items[ppi].FieldName, dt.Items[ppi].ApiDataType, nil})
 				}
 			} else {
-				dtlist = append(dtlist, &_dtitem{srcapiparam.Name, dt})
+
+				sae := &_dtitem{
+					Name:     srcapiparam.Name,
+					DataType: dt,
+				}
+				if len(srcapiparam.Examples) > 0 {
+					p.parseApiExampleList(srcapiparam.Examples, &sae.Examples)
+				}
+				dtlist = append(dtlist, sae)
 			}
 
 			for _, procdt := range dtlist {
@@ -208,6 +217,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 				newip := &ApiParam{
 					Name:          procdt.Name,
 					DataType:      procdt.DataType,
+					Examples:      procdt.Examples,
 					SPIB_Filename: srcapiparam.SPIB_Filename,
 				}
 
