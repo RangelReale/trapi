@@ -9,9 +9,10 @@ import (
 )
 
 type Parser struct {
-	files []string
-	dirs  []string
-	gcp   *gocompar.Parser
+	files      []string
+	dirs       []string
+	gcp        *gocompar.Parser
+	apidefload []*SourceParseItemDefine
 
 	DataTypes  map[string]*ApiDataType
 	ApiDefines []*ApiDefine
@@ -131,7 +132,7 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 	}
 
 	// load defines
-	for _, srcdefine := range sp.Defines {
+	for _, srcdefine := range p.apidefload {
 
 		newi := &ApiDefine{
 			DefineType:    srcdefine.DefineType,
@@ -350,9 +351,12 @@ func (p *Parser) parseSourceDefinesPass(sp *SourceParser) (ctconv int, ctmiss in
 		}
 
 		ctmiss += pctmiss
-		if dt != nil {
+		// if not found or missed some data type, leave for next pass
+		if dt != nil && pctmiss == 0 {
 			ctconv++
 			p.DataTypes[d.Name] = dt.Clone()
+			// build a list to order by load dependency
+			p.apidefload = append(p.apidefload, d)
 
 			// response examples
 			if len(d.Examples) > 0 {
