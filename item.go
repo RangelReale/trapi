@@ -21,6 +21,36 @@ const (
 	DATATYPE_CUSTOM = 1000
 )
 
+func (dt DataType) String() string {
+	switch dt {
+	case DATATYPE_NONE:
+		return "DATATYPE_NONE"
+	case DATATYPE_STRING:
+		return "DATATYPE_STRING"
+	case DATATYPE_NUMBER:
+		return "DATATYPE_NUMBER"
+	case DATATYPE_INTEGER:
+		return "DATATYPE_INTEGER"
+	case DATATYPE_BOOLEAN:
+		return "DATATYPE_BOOLEAN"
+	case DATATYPE_OBJECT:
+		return "DATATYPE_OBJECT"
+	case DATATYPE_ARRAY:
+		return "DATATYPE_ARRAY"
+	case DATATYPE_BINARY:
+		return "DATATYPE_BINARY"
+	case DATATYPE_DATE:
+		return "DATATYPE_DATE"
+	case DATATYPE_TIME:
+		return "DATATYPE_TIME"
+	case DATATYPE_DATETIME:
+		return "DATATYPE_DATETIME"
+	case DATATYPE_CUSTOM:
+		return "DATATYPE_CUSTOM"
+	}
+	return "DATATYPE_UNKNOWN"
+}
+
 type ParamType int
 
 const (
@@ -30,6 +60,20 @@ const (
 	PARAMTYPE_BODY
 )
 
+func (pt ParamType) String() string {
+	switch pt {
+	case PARAMTYPE_UNKNOWN:
+		return "PARAMTYPE_UNKNOWN"
+	case PARAMTYPE_QUERY:
+		return "PARAMTYPE_QUERY"
+	case PARAMTYPE_URI:
+		return "PARAMTYPE_URI"
+	case PARAMTYPE_BODY:
+		return "PARAMTYPE_BODY"
+	}
+	return "PARAMTYPE_UNKNOWN"
+}
+
 type ResponseType int
 
 const (
@@ -37,6 +81,18 @@ const (
 	RESPONSETYPE_SUCCESS
 	RESPONSETYPE_ERROR
 )
+
+func (rt ResponseType) String() string {
+	switch rt {
+	case RESPONSETYPE_UNKNOWN:
+		return "RESPONSETYPE_UNKNOWN"
+	case RESPONSETYPE_SUCCESS:
+		return "RESPONSETYPE_SUCCESS"
+	case RESPONSETYPE_ERROR:
+		return "RESPONSETYPE_ERROR"
+	}
+	return "RESPONSETYPE_UNKNOWN"
+}
 
 func ParseParamType(param_type string) ParamType {
 	switch param_type {
@@ -68,8 +124,7 @@ type ApiDataType struct {
 	ItemType     *string
 	ParentType   *string
 	Description  string
-	Required     bool
-	Items        map[string]*ApiDataType
+	Items        map[string]*ApiDataTypeField
 	ItemsOrder   []string
 	Examples     []*ApiExample
 	BuiltIn      bool
@@ -83,15 +138,18 @@ func (a *ApiDataType) Clone() *ApiDataType {
 		ItemType:     a.ItemType,
 		ParentType:   a.ParentType,
 		Description:  a.Description,
-		Required:     a.Required,
 		Examples:     a.Examples,
 		BuiltIn:      a.BuiltIn,
 		Override:     a.Override,
 	}
 	if a.Items != nil {
-		ret.Items = make(map[string]*ApiDataType)
+		ret.Items = make(map[string]*ApiDataTypeField)
 		for ak, av := range a.Items {
-			ret.Items[ak] = av.Clone()
+			ret.Items[ak] = &ApiDataTypeField{
+				FieldName:   av.FieldName,
+				Required:    av.Required,
+				ApiDataType: av.ApiDataType.Clone(),
+			}
 		}
 	}
 	if a.ItemsOrder != nil {
@@ -100,6 +158,12 @@ func (a *ApiDataType) Clone() *ApiDataType {
 		}
 	}
 	return ret
+}
+
+type ApiDataTypeField struct {
+	FieldName   string
+	Required    bool
+	ApiDataType *ApiDataType
 }
 
 type Api struct {

@@ -192,11 +192,11 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 			if pt == PARAMTYPE_QUERY && dt.DataType == DATATYPE_OBJECT {
 				// expand keys into parameters
 				for _, ppi := range dt.ItemsOrder {
-					if dt.Items[ppi].DataType == DATATYPE_OBJECT {
+					if dt.Items[ppi].ApiDataType.DataType == DATATYPE_OBJECT {
 						return NewParserError(fmt.Sprintf("Only one level of indirection is supported in query param %s", srcapiparam.Name), srcapiparam.Filename, srcapiparam.Line)
 					}
 
-					dtlist = append(dtlist, &_dtitem{ppi, dt.Items[ppi]})
+					dtlist = append(dtlist, &_dtitem{dt.Items[ppi].FieldName, dt.Items[ppi].ApiDataType})
 				}
 			} else {
 				dtlist = append(dtlist, &_dtitem{srcapiparam.Name, dt})
@@ -373,7 +373,6 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 			ItemType:    &sdt,
 			ParentType:  &array_parenttype,
 			Description: b.Description,
-			Required:    b.Required,
 			Override:    true,
 		}, 0, nil
 	}
@@ -381,7 +380,6 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 	if ok && dt.DataType != DATATYPE_OBJECT {
 		ret := dt.Clone()
 		ret.Description = b.Description
-		ret.Required = b.Required
 		if is_define {
 			ret.DataTypeName = b.Name
 			ret.Override = true
@@ -394,7 +392,6 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 
 		ret := dt.Clone()
 		ret.Description = b.Description
-		ret.Required = b.Required
 
 		if !is_define && (b.Items == nil || len(b.Items) == 0) {
 			return ret, 0, nil
@@ -409,7 +406,7 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 
 		if b.Items != nil {
 			if ret.Items == nil {
-				ret.Items = make(map[string]*ApiDataType)
+				ret.Items = make(map[string]*ApiDataTypeField)
 			}
 			for _, it := range b.Items {
 
@@ -422,7 +419,11 @@ func (p *Parser) parseSourceDataType(b *SPIB_DataType, rootb *SPIB_DataType, is_
 				ctmiss += newctmiss
 				if newctmiss == 0 {
 					//ret.Items[it.Name] = newit.Clone()
-					ret.Items[it.Name] = newit
+					ret.Items[it.Name] = &ApiDataTypeField{
+						FieldName:   it.Name,
+						Required:    it.Required,
+						ApiDataType: newit,
+					}
 					if !foundi {
 						ret.ItemsOrder = append(ret.ItemsOrder, it.Name)
 					}
