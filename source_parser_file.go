@@ -90,6 +90,21 @@ func (p *sourceParserFile) stackCloseUntilWithExample() error {
 	return nil
 }
 
+func (p *sourceParserFile) stackCloseUntilWithHeaders() error {
+
+	for p.stack.Len() > 0 {
+		if _, ok := p.stack.Top().Item.(ISPIB_WithHeaders); ok {
+			return nil
+		}
+		err := p.stackCloseLast()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (p *sourceParserFile) stackCloseLast() error {
 
 	i := p.stack.Pop()

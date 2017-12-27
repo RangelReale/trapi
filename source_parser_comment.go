@@ -314,6 +314,12 @@ var (
 
 func (p *sourceParserFile) parseHeader(line int, comment *gocompar.Comment, text string) error {
 
+	// must have an "ISPIB_WithHeaders" item at top
+	err := p.stackCloseUntilWithHeaders()
+	if err != nil {
+		return err
+	}
+
 	s := reAPIHeader.FindStringSubmatch(text)
 	if s == nil || len(s) < 2 {
 		return fmt.Errorf("Could not parse @apiHeader line: %s", text)
