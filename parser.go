@@ -1,7 +1,6 @@
 package trapi
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -127,7 +126,14 @@ func (p *Parser) ParseSource(sp *SourceParser) error {
 		}
 
 		if ctconv == 0 {
-			return errors.New("Could not resolve all api references")
+			miss_def := make([]string, 0)
+			for _, d := range sp.Defines {
+				if _, founddt := p.DataTypes[d.Name]; !founddt {
+					miss_def = append(miss_def, d.Name)
+				}
+			}
+
+			return fmt.Errorf("Could not resolve all api references: missing [%s]", strings.Join(miss_def, ","))
 		}
 	}
 
@@ -355,7 +361,17 @@ func (p *Parser) parseSourceDefinesPass(sp *SourceParser) (ctconv int, ctmiss in
 			continue
 		}
 
+		// add a temporary datatype to allow recursivity
+		p.DataTypes[d.Name] = &ApiDataType{
+			DataTypeName: d.Name,
+			DataType:     DATATYPE_NONE,
+			BuiltIn:      false,
+			Override:     false,
+		}
+
 		dt, pctmiss, err := p.parseSourceDataType(&d.SPIB_DataType, nil, true, true)
+		// delete temporary
+		delete(p.DataTypes, d.Name)
 		if err != nil {
 			return 0, 0, err
 		}
