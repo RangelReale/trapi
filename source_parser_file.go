@@ -197,5 +197,11 @@ func (p *sourceParserFile) parseComment(comment *gocompar.Comment) error {
 		return err
 	}
 
+	// each comment block closes the stack
+	err := p.stackClose()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
