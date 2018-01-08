@@ -6,6 +6,7 @@ import (
 
 type SourceParser struct {
 	gcp *gocompar.Parser
+	tags []string
 
 	Defines []*SourceParseItemDefine
 	Apis    []*SourceParseItemApi
@@ -17,6 +18,14 @@ func NewSourceParser(gcp *gocompar.Parser) *SourceParser {
 	}
 }
 
+func (p *SourceParser) AddTag(tag string) {
+	p.tags = append(p.tags, tag)
+}
+
+func (p *SourceParser) AddTags(tags []string) {
+	p.tags = append(p.tags, tags...)
+}
+
 func (p *SourceParser) Process() error {
 
 	for _, f := range p.gcp.Comments {
@@ -24,10 +33,9 @@ func (p *SourceParser) Process() error {
 		fp := newSourceParserFile(p, f.Filename)
 		err := fp.parseComments(f.Comments)
 		if err != nil {
-			if err == ErrIgnore {
-				return nil
+			if err != ErrIgnore {
+				return err
 			}
-			return err
 		}
 
 		fp.finish()

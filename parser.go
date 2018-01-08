@@ -12,6 +12,7 @@ type Parser struct {
 	dirs       []string
 	gcp        *gocompar.Parser
 	apidefload []*SourceParseItemDefine
+	tags []string
 
 	DataTypes  map[string]*ApiDataType
 	ApiDefines []*ApiDefine
@@ -86,6 +87,14 @@ func (p *Parser) AddDir(dir string) {
 	p.dirs = append(p.dirs, dir)
 }
 
+func (p *Parser) AddTag(tag string) {
+	p.tags = append(p.tags, tag)
+}
+
+func (p *Parser) AddTags(tags []string) {
+	p.tags = append(p.tags, tags...)
+}
+
 func (p *Parser) Parse() error {
 
 	var err error
@@ -103,6 +112,7 @@ func (p *Parser) Parse() error {
 	}
 
 	sp := NewSourceParser(p.gcp)
+	sp.AddTags(p.tags)
 	err = sp.Process()
 	if err != nil {
 		return err

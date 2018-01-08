@@ -345,3 +345,32 @@ func (p *sourceParserFile) parseHeader(line int, comment *gocompar.Comment, text
 
 	return nil
 }
+
+//
+// @api: Tag
+//
+
+var (
+	// @apiTag tag1,tag2
+	reAPITag = regexp.MustCompile(`@apiTag (.*)$`)
+)
+
+func (p *sourceParserFile) parseTag(line int, comment *gocompar.Comment, text string) (cont bool, err error) {
+
+	s := reAPITag.FindStringSubmatch(text)
+	if s == nil || len(s) < 2 {
+		return false, fmt.Errorf("Could not parse @apiTag line: %s", text)
+	}
+
+	tags := strings.Split(s[1], ",")
+
+	for _, filetag := range tags {
+		for _, reqtag := range p.parser.tags {
+			if filetag == reqtag {
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
+}

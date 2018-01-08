@@ -18,6 +18,7 @@ type sourceParserFile struct {
 	parser   *SourceParser
 	filename string
 	stack    *SourceParseStack
+	hastags bool
 }
 
 func newSourceParserFile(parser *SourceParser, filename string) *sourceParserFile {
@@ -198,6 +199,14 @@ func (p *sourceParserFile) parseComment(comment *gocompar.Comment) error {
 				return nil
 			case "IgnoreFile":
 				return ErrIgnore
+			case "Tag":
+				p.hastags = true
+
+				var cnt bool
+				cnt, err = p.parseTag(line, comment, scan.Text())
+				if err == nil && !cnt {
+					return ErrIgnore
+				}
 			default:
 				err = NewParserError(fmt.Sprintf("Unknown directive @api%s", s[1]), p.filename, comment.Line)
 			}
